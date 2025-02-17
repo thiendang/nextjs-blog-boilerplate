@@ -1,5 +1,6 @@
 import { GetServerSideProps } from 'next';
-import { ClientSafeProvider, getProviders, signIn } from 'next-auth/react';
+import Router from 'next/router';
+import { ClientSafeProvider, getProviders, signIn, useSession } from 'next-auth/react';
 import React, { useRef } from 'react';
 
 type Props = {
@@ -9,6 +10,8 @@ type Props = {
 const SignIn: React.FC<Props> = ({ providers }) => {
   const emailInputRef = useRef<HTMLInputElement>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
+
+  const { data: session } = useSession();
 
   const handleSubmit = async (event: React.SyntheticEvent) => {
     event.preventDefault();
@@ -32,6 +35,10 @@ const SignIn: React.FC<Props> = ({ providers }) => {
   }
 
   console.log('providers', providers);
+
+  if (session) {
+    Router.push('/');
+  }
 
   return (
     <>
