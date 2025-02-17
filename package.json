@@ -6,7 +6,7 @@
   "license": "MIT",
   "author": "",
   "scripts": {
-    "dev": "next",
+    "dev": "next -p 8000",
     "https": "local-ssl-proxy --key certs/localhost-key.pem --cert certs/localhost.pem --source 3001 --target 3000",
     "dev-https": "yarn dev & yarn https",
     "build": "next build",
