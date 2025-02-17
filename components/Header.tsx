@@ -149,6 +149,10 @@ const Header: React.FC = () => {
     right = (
       <div className="right">
         <p>
+          <img
+            src={session.user.image || 'https://i.pravatar.cc/50'}
+            className="avatar"
+          />
           {session.user.name} ({session.user.email})
         </p>
         <Link href="/create">
@@ -188,6 +192,11 @@ const Header: React.FC = () => {
 
           button {
             border: none;
+          }
+
+          .avatar {
+            width: 50px;
+            height: 50px;
           }
         `}</style>
       </div>
