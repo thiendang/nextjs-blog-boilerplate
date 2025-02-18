@@ -2,3 +2,9 @@ node_modules/
 .next/
 prisma/dev.db
 .env.local
+
+!uploads/avatars
+uploads/avatars/*
+!uploads/avatars/avatar0.jpg
+!uploads/avatars/avatar1.jpg
+!uploads/avatars/avatar2.jpg

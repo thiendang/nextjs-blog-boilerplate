@@ -7,7 +7,7 @@ import { getSession } from 'next-auth/react';
 
 const upload = multer({
   storage: multer.diskStorage({
-    destination: process.env.UPLOADS_PATH,
+    destination: `${process.cwd()}/uploads/avatars`,
     filename: async (req, file, cb) => {
       const session = await getSession({ req });
 
