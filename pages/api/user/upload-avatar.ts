@@ -1,15 +1,33 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import nextConnect from 'next-connect';
 import multer from 'multer';
+import prisma from 'lib/prisma';
+
+const formatDate = (date = Date.now()) => {
+  let d = new Date(date),
+    month = '' + (d.getMonth() + 1),
+    day = '' + d.getDate(),
+    year = d.getFullYear();
+  if (month.length < 2) month = '0' + month;
+  if (day.length < 2) day = '0' + day;
+  return [month, day, year].join('-');
+};
 
 const upload = multer({
   storage: multer.diskStorage({
     destination: process.env.UPLOADS_PATH,
-    filename: (req, file, cb) => {
-      cb(null, file.originalname);
-    }
-  })
-})
+    filename: async (req, file, cb) => {
+      const fileName = `${formatDate()}_${file.originalname}`;
+      const _user = await prisma.user.update({
+        where: { email: '' }, // pass id
+        data: {
+          image: fileName,
+        },
+      });
+      cb(null, fileName);
+    },
+  }),
+});
 
 const apiRoute = nextConnect<NextApiRequest, NextApiResponse>({
   onError(error, req, res) {
@@ -17,7 +35,7 @@ const apiRoute = nextConnect<NextApiRequest, NextApiResponse>({
   },
   onNoMatch(req, res) {
     res.status(405).json({ error: `Method '${req.method}' Not Allowed` });
-  }
+  },
 });
 
 apiRoute.use(upload.array('avatar'));
