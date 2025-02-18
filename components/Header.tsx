@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { signOut, useSession } from 'next-auth/react';
+import Image from 'next/image';
 
 const Header: React.FC = () => {
   const router = useRouter();
@@ -157,7 +158,11 @@ const Header: React.FC = () => {
     right = (
       <div className="right">
         <p>
-          <img src={session.user.image} className="avatar" />
+          <Image
+            src={`/images/avatars/${session.user.image || 'placeholder-avatar.jpg'}`}
+            width="50"
+            height="50"
+          />
           {session.user.name} ({session.user.email})
         </p>
         <Link href="/create">
