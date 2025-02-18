@@ -2,24 +2,22 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import nextConnect from 'next-connect';
 import multer from 'multer';
 import prisma from 'lib/prisma';
-
-const formatDate = (date = Date.now()) => {
-  let d = new Date(date),
-    month = '' + (d.getMonth() + 1),
-    day = '' + d.getDate(),
-    year = d.getFullYear();
-  if (month.length < 2) month = '0' + month;
-  if (day.length < 2) day = '0' + day;
-  return [month, day, year].join('-');
-};
+import { formatDate } from '@/utils/index';
+import { getSession } from 'next-auth/react';
 
 const upload = multer({
   storage: multer.diskStorage({
     destination: process.env.UPLOADS_PATH,
     filename: async (req, file, cb) => {
+      const session = await getSession({ req });
+
+      if (!session) {
+        cb(new Error('Unauthorized'), null);
+      }
+
       const fileName = `${formatDate()}_${file.originalname}`;
       const _user = await prisma.user.update({
-        where: { email: '' }, // pass id
+        where: { email: session.user.email },
         data: {
           image: fileName,
         },

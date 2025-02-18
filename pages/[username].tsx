@@ -1,21 +1,43 @@
 import { useState } from 'react';
 import axios from 'axios';
-const Profile: React.FC = () => {
+import { Prisma } from '@prisma/client';
+import prisma from 'lib/prisma';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
+import { GetServerSideProps } from 'next';
+
+type Props = {
+  profile: Prisma.UserCreateInput;
+};
+
+const Profile: React.FC<Props> = ({ profile }) => {
   const [avatar, setAvatar] = useState(undefined);
   const [avatarFile, setAvatarFile] = useState(undefined);
   const [progress, setProgress] = useState(0);
+
+  const router = useRouter();
+
+  const { data: session, status } = useSession();
+  const loading = status === 'loading';
+
+  const isEditable = session.user.username === router.query.username;
+
   const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files?.length) {
       return;
     }
+
     const file = event.target.files[0];
     setAvatar(URL.createObjectURL(file));
     setAvatarFile(file);
   };
+
   const handleUpload = async (event: React.SyntheticEvent) => {
     event.preventDefault();
     const formData = new FormData();
+
     formData.append('avatar', avatarFile);
+
     const config = {
       headers: { 'content-type': 'multipart/form-data' },
       onUploadProgress: (event: ProgressEvent) => {
@@ -23,12 +45,14 @@ const Profile: React.FC = () => {
         setProgress(_progress);
       },
     };
+
     try {
       await axios.post('/api/user/upload-avatar', formData, config);
     } catch (error) {
       console.error(error);
     }
   };
+
   return (
     <form>
       <div>
@@ -46,5 +70,21 @@ const Profile: React.FC = () => {
     </form>
   );
 };
+
 // getServerSideProps and prisma get user
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+  const router = useRouter();
+  const { username } = router.query;
+
+  const drafts = await prisma.user.findMany({
+    where: { username },
+  });
+
+  return {
+    props: {
+      drafts,
+    },
+  };
+};
+
 export default Profile;
