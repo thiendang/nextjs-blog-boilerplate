@@ -1,61 +1,60 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import prisma from 'lib/prisma';
+import nc from 'lib/nc';
+
+const handler = nc();
+const getId = (req: NextApiRequest) => Number(req.query.id as string);
 
 // GET, PATCH, DELETE /api/post/:id
-const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { method, query, body } = req;
-  const id = Number(query.id as string);
 
-  switch (method) {
-    case 'GET':
-      const post = await prisma.post.findUnique({
-        where: { id },
-      });
+const getPost = async (req: NextApiRequest, res: NextApiResponse) => {
+  const post = await prisma.post.findUnique({ where: { id: getId(req) } });
+  res.status(200).json({ post });
+};
 
-      if (!post) {
-        return res.status(404).json({ error: 'Post not found' });
-      }
+const updatePost = async (req: NextApiRequest, res: NextApiResponse) => {
+  const id = getId(req);
+  const { title, content, published } = req.body;
 
-      res.status(200).json(post);
-      break;
+  // if user or admin middleware
 
-    case 'PATCH':
-      const { title, content, published } = body;
+  const data = {
+    ...(title && { title }),
+    ...(content && { content }),
+    ...(typeof published === 'boolean' && { published }),
+  };
 
-      const data = {
-        ...(title && { title }),
-        ...(content && { content }),
-        ...(typeof published === 'boolean' && { published }),
-      };
+  const post = await prisma.post.update({
+    where: { id },
+    data,
+  });
 
-      try {
-        const post = await prisma.post.update({
-          where: { id },
-          data,
-        });
-  
-        return res.status(200).json(post);
-      } catch (error) {
-        res.status(500).json({ error: 'Something went wrong' });
-      }
-      break;
+  res.status(200).json({ post });
+};
 
-    case 'DELETE':
-      try {
-        const post = await prisma.post.delete({
-          where: { id },
-        });
+const deletePost = async (req: NextApiRequest, res: NextApiResponse) => {
+  const post = await prisma.post.delete({
+    where: { id: getId(req) },
+  });
 
-        res.status(204).json({ post });
-      } catch (error) {
-        res.status(500).json({ error: 'Something went wrong' });
-      }
-      break;
-  
-    default:
-      res.setHeader('Allow', ['GET', 'PUT']);
-      res.status(405).end(`Method ${method} Not Allowed`);
-  }
-}
+  res.status(204).json({ post });
+
+
+
+
+
+
+
+
+
+
+
+
+
+};
+
+handler.get(getPost);
+handler.patch(updatePost);
+handler.delete(deletePost);
 
 export default handler;

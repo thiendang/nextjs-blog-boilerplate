@@ -1,20 +1,15 @@
-
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getSession } from 'next-auth/react';
 import { hash } from 'bcryptjs';
-
 import prisma from 'lib/prisma';
 import avatarUpload from 'lib/middleware/avatarUpload';
-import nc, { options } from 'lib/nc';
+import nc from 'lib/nc';
 
 interface MulterRequest extends NextApiRequest {
   file: any;
 }
 
-const handler = nc(options);
-
-
-
+const handler = nc();
 
 // joi validate middleware
 handler.use(avatarUpload);
