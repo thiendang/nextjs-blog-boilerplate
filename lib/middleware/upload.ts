@@ -2,7 +2,7 @@ import multer from 'multer';
 import { formatDate } from 'utils';
 import { extname } from 'path';
 
-const upload = multer({
+export const avatarUpload = multer({
   storage: multer.diskStorage({
     destination: `${process.cwd()}/uploads/avatars`, // node process, root folder
     filename: async (req, file, cb) => {
@@ -26,5 +26,3 @@ const upload = multer({
     fileSize: 2 * 1024 * 1024, // 2MB
   },
 }).single('avatar');
-
-export default upload;
